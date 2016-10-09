@@ -4,6 +4,8 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using drawArch;
+using drawArch.Parser;
 
 namespace Test
 {
@@ -11,62 +13,46 @@ namespace Test
     public class ParserTest
     {
         [TestMethod]
-        public void CanFetchAllCsProjFilesRecursively()
+        public void CanParseCsProjFileNames()
         {
-            var files = FindAllProjects();
-
-            Assert.IsTrue(files.Count() > 0);
-        }
-
-        class Project
-        {
-            public string Name { get; private set; }
-
-            public IList<Project> References { get; private set; }
-
-            public Project(string Name)
-            {
-                this.References = new List<Project>();
-                this.Name = Name;
-            }
-
-            public void AddReferencedProject(Project project)
-            {
-                References.ToList().Add(project);
-            }
-        }
-
-        public class ProjectParser
-        {
-
-        }
-
-        [TestMethod]
-        public void CanFindReferencesToOtherProjectsInPRojectFile()
-        {
-            var proj = @"C:\dev\edx\EDX\EDXServer\EDXServer.csproj";
-
-            var contents = File.ReadLines(proj);
+            var csProjs = new string[] 
+                {
+                    @"C:\dev\edx\EDX\EDXServer\EDXServer.csproj",
+                    @"C:\dev\edx\EDX\OtherTestProject\OtherTestProject.csproj"
+                };
 
             var projects = new List<Project>();
 
-            var project = new Project("EDXServer");
-
-            foreach (var referenceXmlString in contents.Where(l => l.Contains("<ProjectReference ")))
+            foreach (var projectPath in csProjs)
             {
-                var regex = new Regex(".*\\\\(.*)\\.csproj"); //<ProjectReference Include="..\Utilities\Utilities.csproj">
-                projects.Add(new Project(regex.Match(referenceXmlString).Groups[1].Value));
+                projects.Add(new Project(projectPath));
             }
 
-            Assert.AreEqual(3, projects.Count());
-            Assert.AreEqual("ClientAPIClasses", projects[0].Name);
-            Assert.AreEqual("CustomizeAPI", projects[1].Name);
-            Assert.AreEqual("Utilities", projects[2].Name);
+            Assert.AreEqual(2, projects.Count());
+            Assert.AreEqual("EDXServer", projects[0].Name);
+            Assert.AreEqual("OtherTestProject", projects[1].Name);
         }
 
-        private static string[] FindAllProjects()
+        //[TestMethod]
+        //public void CanFindReferencesToOtherProjectsInProjectFile()
+        //{
+        //    var proj = @"C:\dev\edx\EDX\EDXServer\EDXServer.csproj";
+
+        //    var contents = File.ReadLines(proj);
+
+            
+        //    Assert.AreEqual(3, project.References.Count());
+        //    Assert.AreEqual("ClientAPIClasses", project.References[0].Name);
+        //    Assert.AreEqual("CustomizeAPI", project.References[1].Name);
+        //    Assert.AreEqual("Utilities", project.References[2].Name);
+        //}
+
+        [TestMethod]
+        public void CanFetchAllCsProjFilesRecursively()
         {
-            return Directory.GetFiles("c:/dev/edx/", "*.csproj", SearchOption.AllDirectories);
+            var files = CsProjParser.FindAllProjects("c:/dev/edx/");
+
+            Assert.IsTrue(files.Count() > 0);
         }
     }
 }
