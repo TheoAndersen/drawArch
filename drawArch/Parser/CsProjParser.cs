@@ -67,6 +67,7 @@ namespace drawArch
 
                 CheckForHostedServices(project, configContents);
                 CheckForReferencedServices(project, configContents);
+                CheckForReferencedDatabases(project, configContents);
             }
 
             if (File.Exists(project.Path.DirectoryName + "/app.config"))
@@ -75,8 +76,36 @@ namespace drawArch
 
                 CheckForHostedServices(project, configContents);
                 CheckForReferencedServices(project, configContents);
+                CheckForReferencedDatabases(project, configContents);
             }
 
+        }
+
+        private void CheckForReferencedDatabases(Project project, IEnumerable<string> configContents)
+        {
+            foreach (var servString in configContents.Where(c => c.ToLower().Contains("connectionstring=")))
+            {
+                var regex = new Regex("Initial Catalog=([^;]+);.+?");
+                var dbName = regex.Match(servString)?.Groups[1]?.Value;
+
+                if(dbName != null)
+                {
+                    project.Databases.Add(this.architecture.AddDatabase(dbName, servString));
+                    continue;
+                }
+
+                var regex2 = new Regex("name=(.*);");
+                var name = regex2.Match(servString).Groups[1]?.Value;
+
+                if (name != null)
+                {
+                    project.Databases.Add(this.architecture.AddDatabase(dbName, servString));
+                    continue;
+                }
+
+                Console.WriteLine("! -> Unidentified Database: " + servString);
+
+            }
         }
 
         private static void CheckForReferencedServices(Project project, IEnumerable<string> configContents)

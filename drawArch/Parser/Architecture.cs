@@ -11,10 +11,32 @@ namespace drawArch.Parser
     {
         public IList<Project> Projects { get; }
         private int currentId = 0;
-
+        public int currentDatabaseId = 1010;
+        public IList<Database> Databases { get; private set; }
         public Architecture()
         {
             this.Projects = new List<Project>();
+            this.Databases = new List<Database>();
+        }
+
+        public Database AddDatabase(string dbName, string wholedbString)
+        {
+            if (Databases.Count(db => db.Name.ToLower() == dbName.ToLower()) == 0)
+            {
+                currentDatabaseId++;
+
+                var db = new Database()
+                {
+                    Id = currentDatabaseId,
+                    Name = dbName,
+                    ToolTip = wholedbString
+                };
+
+                this.Databases.Add(db);
+                return db;
+            }
+
+            return Databases.First(db => db.Name.ToLower() == dbName.ToLower());
         }
 
         public void AddProject(Project project)

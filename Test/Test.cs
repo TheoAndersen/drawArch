@@ -17,6 +17,22 @@ namespace Test
         /// ... and these will.. eventually...
 
         [TestMethod]
+        public void CanDetectConnectionStringsForDatabaseInConfigurations()
+        {
+            var csProjs = new string[]
+                {
+                    @"C:\dev\edx\EDX\ClientAPI\ClientAPI.csproj",
+                };
+
+            var architecture = new CsProjParser(csProjs).Parse(CsProjParser.ReadLinesFromFile);
+            var projects = architecture.Projects;
+
+            Assert.AreEqual(1, projects.Count());
+            Assert.AreEqual(2, projects[0].Databases.Count);
+            Assert.AreEqual("{1}", projects[0].Databases[0].Name);
+        }
+
+        [TestMethod]
         public void CanDetectProjectsWithReferToEndpoints()
         {
             var csProjs = new string[]

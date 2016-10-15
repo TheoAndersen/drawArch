@@ -26,6 +26,7 @@ namespace drawArch.Parser
             this.References = new List<Project>();
             this.Services = new List<string>();
             this.Endpoints = new List<string>();
+            this.Databases = new List<Database>();
         }
 
         public string Name { get; private set; }
@@ -35,6 +36,7 @@ namespace drawArch.Parser
         public int Id { get; internal set; }
         public IList<string> Services { get; set; }
         public IList<string> Endpoints { get; set; }
+        public IList<Database> Databases { get; set; }
 
         public void AddReferencedProject(Project project)
         {

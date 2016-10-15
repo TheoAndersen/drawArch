@@ -48,6 +48,16 @@ namespace drawArch.Render
                 {
                     edges += renderEndpointEdge(project, endpoint);
                 }
+
+                foreach (var databaase in project.Databases)
+                {
+                    edges += renderDatabaseReference(project, databaase);
+                }
+            }
+
+            foreach (var database in this.architecture.Databases)
+            {
+                nodes += renderDatabase(database);
             }
 
             nodes += "]);" + Environment.NewLine;
@@ -55,6 +65,18 @@ namespace drawArch.Render
 
             return nodes + Environment.NewLine + Environment.NewLine +
                    edges;
+        }
+
+        private string renderDatabaseReference(Project project, Database databaase)
+        {
+            return "{from: " + project.Id + ", to: " + databaase.Id + ", arrows: 'to', dashes: true, color: 'gray'},";
+        }
+
+        private string renderDatabase(Database database)
+        {
+            return "{ id: " + database.Id + 
+                ", label: '" + database.Name+ " ', shape: 'database', " +
+                "title: '" + database.ToolTip.Replace("\"", "") + "', size: 40, color: { background: 'orange', border: 'black'} }, ";
         }
 
         private string renderEndpointEdge(Project from, string endpoint)
@@ -66,7 +88,7 @@ namespace drawArch.Render
                 return "";
             }
 
-            return "{ from: " + from.Id + ", to: " + serviceId + ", dashes: true, arrows: 'to', color: 'black'}," + Environment.NewLine;
+            return "{ from: " + from.Id + ", to: " + serviceId + ", dashes: true, arrows: 'to', color: 'gray'}," + Environment.NewLine;
         }
 
         public string FindIdOfServiceWhichMatchingName(string endpoint)
