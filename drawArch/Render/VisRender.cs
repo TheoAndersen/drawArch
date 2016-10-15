@@ -120,8 +120,9 @@ namespace drawArch.Render
 
 
             return "{id: " + project.Id + 
-                   ", label: '" + project.Name + 
-                   "', shape: 'box', color: " + color + "}," + Environment.NewLine;
+                   ", label: '" + project.Name + "' "+
+                   ", title: '" + project.Path.FullName.Replace(@"\", "/") + "' " +  
+                   ", shape: 'box', color: " + color + "}," + Environment.NewLine;
         }
 
         private string renderEdgeBoxArray(Project from, Project to)

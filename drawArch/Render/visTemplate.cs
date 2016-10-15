@@ -22,8 +22,8 @@ namespace drawArch.Render
 
     <style type=""text/css"">
         #mynetwork {
-            width: 800px;
-            height: 600px;
+            width: 1200px;
+            height: 700px;
             border: 1px solid lightgray;
         }
     </style>
