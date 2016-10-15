@@ -10,11 +10,21 @@ namespace drawArch.Parser
 {
     public class Project
     {
+        public enum ProjectType
+        {
+            Library,
+            Console,
+            WindowsExe
+        }
+
+        public ProjectType Type { get; set; }
+
         public Project(string path)
         {
             this.Name = ParseNameFromCsProjPath(path);
             this.Path = new FileInfo(path);
             this.References = new List<Project>();
+            this.Services = new List<string>();
         }
 
         public string Name { get; private set; }
@@ -22,6 +32,7 @@ namespace drawArch.Parser
         public IList<Project> References { get; private set; }
         public FileInfo Path { get; private set; }
         public int Id { get; internal set; }
+        public IList<string> Services { get; set; }
 
         public void AddReferencedProject(Project project)
         {

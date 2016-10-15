@@ -11,10 +11,10 @@ namespace drawArch
     class Program
     {
         static void Main(string[] args)
-        { 
+        {
             var csProjPaths = CsProjParser.FindAllProjects(@"c:/dev/edx/"); //Directory.GetCurrentDirectory()
 
-            var projects = new CsProjParser(csProjPaths).Parse((path) => { return File.ReadLines(path); });
+            var projects = new CsProjParser(csProjPaths).Parse(CsProjParser.ReadLinesFromFile);
 
             foreach (var project in projects.Projects)
             {

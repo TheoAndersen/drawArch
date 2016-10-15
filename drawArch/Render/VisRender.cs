@@ -19,43 +19,76 @@ namespace drawArch.Render
 
         internal string Render()
         {
-            var template = File.ReadAllText("render/visTemplate.html");
+            var template = VisTemplate.Html();
             return template.Replace("//{{CONTENT}}", renderContent());
         }
 
         private string renderContent()
         {
             var nodes = "var nodes = new vis.DataSet([" + Environment.NewLine;
-
-            foreach (var project in this.architecture.Projects)
-            {
-                nodes += renderNodeBox(project) + Environment.NewLine;
-            }
-
-            nodes += "]);" + Environment.NewLine;
-
             var edges = "var edges = new vis.DataSet([" + Environment.NewLine;
 
             foreach (var project in this.architecture.Projects)
             {
+                nodes += renderNodeBox(project) + Environment.NewLine;
+
                 foreach (var edge in project.References)
                 {
                     var toProject = this.architecture.Projects.Single(p => p.Path == edge.Path); // to find the real ID
                     edges += renderEdgeBoxArray(project, toProject);
                 }
+
+                for (int i = 0; i < project.Services.Count; i++)
+                {
+                    nodes += renderService(project, project.Services[i], i);
+                    edges += renderEdgeService(project, i);
+                }
             }
 
+            nodes += "]);" + Environment.NewLine;
             edges += "]);" + Environment.NewLine;
 
             return nodes + Environment.NewLine + Environment.NewLine +
                    edges;
         }
 
+        private string renderEdgeService(Project from, int i)
+        {
+            return "{ from: " + from.Id + ", to: " + from.Id + "0" + i +", color: 'black'}," + Environment.NewLine;
+
+        }
+
+        private string renderService(Project project, string service, int serviceNumber)
+        {
+            return "{id: " + project.Id + "0" + serviceNumber +
+                    ", size: 5 " + 
+                    ", label: '" + service +
+                    "', shape: 'dot', color: blackAndWhite},";
+        }
+
         private string renderNodeBox(Project project)
         {
+            string color = "blackAndLightGray";
+
+            if(project.Services.Count > 0)
+            {
+                color = "blackAndGreen";
+            }
+
+            switch (project.Type)
+            {
+                case Project.ProjectType.Console:
+                    color = "blackAndBlue";
+                    break;
+                case Project.ProjectType.WindowsExe:
+                    color = "blackAndDarkerBlue";
+                    break;
+            }
+
+
             return "{id: " + project.Id + 
                    ", label: '" + project.Name + 
-                   "', shape: 'box', color: blackAndWhite},";
+                   "', shape: 'box', color: " + color + "},";
         }
 
         private string renderEdgeBoxArray(Project from, Project to)
