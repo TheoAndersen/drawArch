@@ -43,6 +43,11 @@ namespace drawArch.Render
                     nodes += renderService(project, project.Services[i], i);
                     edges += renderEdgeService(project, i);
                 }
+
+                foreach (var endpoint in project.Endpoints)
+                {
+                    edges += renderEndpointEdge(project, endpoint);
+                }
             }
 
             nodes += "]);" + Environment.NewLine;
@@ -50,6 +55,34 @@ namespace drawArch.Render
 
             return nodes + Environment.NewLine + Environment.NewLine +
                    edges;
+        }
+
+        private string renderEndpointEdge(Project from, string endpoint)
+        {
+            var serviceId = FindIdOfServiceWhichMatchingName(endpoint);
+
+            if(serviceId == null)
+            {
+                return "";
+            }
+
+            return "{ from: " + from.Id + ", to: " + serviceId + ", dashes: true, arrows: 'to', color: 'black'}," + Environment.NewLine;
+        }
+
+        public string FindIdOfServiceWhichMatchingName(string endpoint)
+        {
+            foreach (var project in this.architecture.Projects)
+            {
+                for (int i = 0; i < project.Services.Count; i++)
+                {
+                    if(project.Services[i].ToLower().Contains(endpoint.ToLower()))
+                    {
+                        return project.Id + "0" + i;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private string renderEdgeService(Project from, int i)
@@ -63,7 +96,7 @@ namespace drawArch.Render
             return "{id: " + project.Id + "0" + serviceNumber +
                     ", size: 5 " + 
                     ", label: '" + service +
-                    "', shape: 'dot', color: blackAndWhite},";
+                    "', shape: 'dot', color: blackAndWhite}," + Environment.NewLine;
         }
 
         private string renderNodeBox(Project project)
@@ -88,7 +121,7 @@ namespace drawArch.Render
 
             return "{id: " + project.Id + 
                    ", label: '" + project.Name + 
-                   "', shape: 'box', color: " + color + "},";
+                   "', shape: 'box', color: " + color + "}," + Environment.NewLine;
         }
 
         private string renderEdgeBoxArray(Project from, Project to)

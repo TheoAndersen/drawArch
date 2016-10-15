@@ -65,15 +65,57 @@ namespace drawArch
             {
                 var configContents = findFileContents(project.Path.DirectoryName + "/Web.Config");
 
-                foreach (var servString in configContents.Where(c => c.ToLower().Contains("<service ")))
-                {
-                    var regex = new Regex(".*name=\"([^\"]+)\"?.*?");
-                    var name = regex.Match(servString).Groups[1].Value;
+                CheckForHostedServices(project, configContents);
+                CheckForReferencedServices(project, configContents);
+            }
 
-                    project.Services.Add(name);
+            if (File.Exists(project.Path.DirectoryName + "/app.config"))
+            {
+                var configContents = findFileContents(project.Path.DirectoryName + "/app.config");
+
+                CheckForHostedServices(project, configContents);
+                CheckForReferencedServices(project, configContents);
+            }
+
+        }
+
+        private static void CheckForReferencedServices(Project project, IEnumerable<string> configContents)
+        {
+            var lines = configContents.ToList();
+
+            if(lines.Where(l => l.ToLower().Contains("<client>")).Count() == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var line = lines[i];
+
+                if(line.ToLower().Contains("<endpoint ") == false)
+                {
+                    continue;
+                }
+
+                var regex = new Regex("address=.*/(.*)\\.svc");
+                var name = regex.Match(line).Groups[1].Value;
+
+                if(i > 1 && !lines[i-1].ToLower().Contains("<service"))
+                { 
+                    project.Endpoints.Add(name);
                 }
             }
-            
+        }
+
+        private static void CheckForHostedServices(Project project, IEnumerable<string> configContents)
+        {
+            foreach (var servString in configContents.Where(c => c.ToLower().Contains("<service ")))
+            {
+                var regex = new Regex(".*name=\"([^\"]+)\"?.*?");
+                var name = regex.Match(servString).Groups[1].Value;
+
+                project.Services.Add(name);
+            }
         }
 
         private void DetermineProjectType(IEnumerable<string> fileContents, Project project)

@@ -25,6 +25,7 @@ namespace drawArch.Parser
             this.Path = new FileInfo(path);
             this.References = new List<Project>();
             this.Services = new List<string>();
+            this.Endpoints = new List<string>();
         }
 
         public string Name { get; private set; }
@@ -33,6 +34,7 @@ namespace drawArch.Parser
         public FileInfo Path { get; private set; }
         public int Id { get; internal set; }
         public IList<string> Services { get; set; }
+        public IList<string> Endpoints { get; set; }
 
         public void AddReferencedProject(Project project)
         {

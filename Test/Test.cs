@@ -12,6 +12,26 @@ namespace Test
     [TestClass]
     public class ParserTest
     {
+        /// Yeah, I'm sorry i know - all the tests refer to a project i had on my local
+        /// machine while creating them.. tests should always create theyr own data
+        /// ... and these will.. eventually...
+
+        [TestMethod]
+        public void CanDetectProjectsWithReferToEndpoints()
+        {
+            var csProjs = new string[]
+                {
+                    @"C:\dev\edx\EDX\GUI Shell\GUI Shell.csproj",
+                };
+
+            var architecture = new CsProjParser(csProjs).Parse(CsProjParser.ReadLinesFromFile);
+            var projects = architecture.Projects;
+
+            Assert.AreEqual(1, projects.Count());
+            Assert.AreEqual("GUI Shell", projects[0].Name);
+            Assert.AreEqual(7, projects[0].Endpoints.Count);
+            Assert.AreEqual("wsSecurity", projects[0].Endpoints[0]);
+        }
 
         [TestMethod]
         public void CanDetectProjectsThatServeWCFServices()
@@ -28,6 +48,7 @@ namespace Test
             Assert.AreEqual("ClientAPI", projects[0].Name);
             Assert.AreEqual(7, projects[0].Services.Count());
             Assert.AreEqual("ClientAPI.wsReport", projects[0].Services[0]);
+            Assert.AreEqual(0, projects[0].Endpoints.Count, "The endpoint tag for each service, shouln't be confused with a real endpoint");
         }
 
         [TestMethod]
